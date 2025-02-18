@@ -1,0 +1,15 @@
+{
+  "name": "game-tokenomics",
+  "version": "1.0.0",
+  "description": "This is for implementing 2048 game rewarding mechanism.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.18"
+  }
+}
