@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract Tokenomics is ReentrancyGuard {
+contract TokenReward is ReentrancyGuard {
 
     IERC20 public tokenContract;
 
