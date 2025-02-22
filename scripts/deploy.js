@@ -21,7 +21,7 @@ async function deployWithRetry(contractName, args = [], maxAttempts = 3, delayMs
             }
             
             return contract;
-        } catch {
+        } catch (error) {
             console.log(`Deployment attempt ${attempt} failed:`, error.message);
             lastError = error;
 
@@ -64,7 +64,6 @@ async function main() {
         //Deploy TokenReward with retry mechanism
         const tokenReward = await deployWithRetry("TokenReward", [mockTokenAddress]);
         const tokenRewardAddress = await tokenReward.getAddress();
-        console.log("TokenReward deployed to:", tokenRewardAddress);
 
         //Verify contracts on Polygonscan
         if (process.env.POLYGONSCAN_API_KEY) {
@@ -85,5 +84,3 @@ main().catch(error => {
     console.error(error);
     process.exit(1);
 });
-
-//this is deploy file

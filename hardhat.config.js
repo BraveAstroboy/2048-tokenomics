@@ -2,9 +2,9 @@ require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
 //Load environment variables
-const POLYGON_RPC_URL = process.env.POLYGON_RPC_URL;
+const HOLESKY_RPC_URL = process.env.HOLESKY_RPC_URL;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY;
+const HOLESKYSCAN_API_KEY = process.env.HOLESKYSCAN_API_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -18,10 +18,10 @@ module.exports = {
     }
   },
   networks: {
-    polygon: {
-      url: POLYGON_RPC_URL || "https://polygon-rpc.com",
+    holesky: {
+      url: HOLESKY_RPC_URL,
       accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
-      chainId: 137,
+      chainId: 17000,
       gasPrice: "auto",
       // Recommended settings for Polygon mainnet
       timeout: 120000, // 2 minutes
@@ -36,13 +36,13 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      polygon: POLYGONSCAN_API_KEY
+      polygon: HOLESKYSCAN_API_KEY
     }
   },
   gasReporter: {
     enabled: true,
     currency: "USD",
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    gasPriceApi: "https://api.polygonscan.com/api?module=proxy&action=eth_gasPrice",
+    gasPriceApi: "https://api.holeskyscan.com/api?module=proxy&action=eth_gasPrice",
   }
 };
