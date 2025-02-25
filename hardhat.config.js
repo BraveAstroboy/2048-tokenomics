@@ -23,7 +23,7 @@ module.exports = {
       accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
       chainId: 17000,
       gasPrice: "auto",
-      // Recommended settings for Polygon mainnet
+      // Recommended settings for holesky testnet
       timeout: 120000, // 2 minutes
       confirmations: 2, // Wait for 2 confirmations
     },
@@ -36,7 +36,7 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      polygon: HOLESKYSCAN_API_KEY
+      holesky: HOLESKYSCAN_API_KEY
     }
   },
   gasReporter: {

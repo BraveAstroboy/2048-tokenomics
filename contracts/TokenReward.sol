@@ -18,6 +18,11 @@ contract TokenReward is ReentrancyGuard {
         uint256 paymentAmount
     );
 
+    event ItemsPurchased(
+        address indexed user,
+        uint256 tokenAmount
+    );
+
     constructor(address _tokenContract) {
         tokenContract = IERC20(_tokenContract);
     }
@@ -26,6 +31,12 @@ contract TokenReward is ReentrancyGuard {
         require(tokenContract.balanceOf(address(this)) >= amount, "Insufficient reward tokens");
         tokenContract.transfer(user, amount);
         emit RewardDistributed(user, amount);
+    }
+
+    function buyItemsWithTokens(uint256 amount) external {
+        require(tokenContract.balanceOf(msg.sender) >= amount, "Insufficient payment tokens");
+        tokenContract.transferFrom(msg.sender, address(this), amount);
+        emit ItemsPurchased(msg.sender, amount);
     }
 
     function buyTokensWithNativeCurrency(uint256 tokenAmount) external payable {

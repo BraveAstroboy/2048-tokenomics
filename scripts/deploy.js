@@ -65,8 +65,12 @@ async function main() {
         const tokenReward = await deployWithRetry("TokenReward", [mockTokenAddress]);
         const tokenRewardAddress = await tokenReward.getAddress();
 
-        //Verify contracts on Polygonscan
-        if (process.env.POLYGONSCAN_API_KEY) {
+        //Update frontend contract addresses
+        updateContractAddress("../../2048-center-backend/src/consts/contracts/token.contract.json", mockTokenAddress );
+        updateContractAddress("../../2048-center-backend/src/consts/contracts/reward.contract.json", tokenRewardAddress);
+
+        //Verify contracts on Holeskyscan
+        if (process.env.HOLESKYSCAN_API_KEY) {
             //Wait for a few block confirmations before verification
             console.log("Waiting for block confirmations...");
             await ethers.provider.waitForTransaction(tokenReward.deployTransaction.hash, 5);
@@ -78,6 +82,13 @@ async function main() {
         console.error("Deployment failed:", error);
         process.exit(1);
     }
+}
+
+function updateContractAddress(path, address) {
+    const fs = require("fs");
+    const contract = require("../" + path);
+    contract.address = address;
+    fs.writeFileSync(path, JSON.stringify(contract, null, 2));
 }
 
 main().catch(error => {
