@@ -2,8 +2,9 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TokenReward is ReentrancyGuard {
+contract TokenReward is ReentrancyGuard, Ownable {
 
     IERC20 public tokenContract;
 
@@ -23,38 +24,62 @@ contract TokenReward is ReentrancyGuard {
         uint256 tokenAmount
     );
 
-    constructor(address _tokenContract) {
+    constructor(address _tokenContract) Ownable(msg.sender) {
         tokenContract = IERC20(_tokenContract);
     }
 
-    function distributeReward(address user, uint256 amount) external {
-        require(tokenContract.balanceOf(address(this)) >= amount, "Insufficient reward tokens");
-        tokenContract.transfer(user, amount);
-        emit RewardDistributed(user, amount);
+    modifier validAddress(address _addr) {
+        require(_addr != address(0), "Not valid address");
+        _;
     }
 
-    function buyItemsWithTokens(uint256 amount) external {
-        require(tokenContract.balanceOf(msg.sender) >= amount, "Insufficient payment tokens");
-        tokenContract.transferFrom(msg.sender, address(this), amount);
-        emit ItemsPurchased(msg.sender, amount);
+    modifier validAmount(uint256 amount) {
+        require(amount > 0, "Amount must be greater than zero");
+        _;
     }
 
-    function buyTokensWithNativeCurrency(uint256 tokenAmount) external payable {
-        require(msg.value > 0, "Payment amount must be greater than zero");
-        require(tokenAmount > 0, "Purchase amount must be greater than zero");
-        require(tokenContract.balanceOf(address(this)) >= tokenAmount, "Insufficient reward tokens");
-        tokenContract.transfer(msg.sender, tokenAmount);
-        emit TokensPurchased(msg.sender, tokenAmount, msg.value);
+    function distributeReward(address user, uint256 gameTokenAmount)
+        external
+        onlyOwner
+        validAddress(user)
+        validAmount(gameTokenAmount)
+    {
+        require(tokenContract.balanceOf(address(this)) >= gameTokenAmount, "Insufficient reward tokens");
+        tokenContract.transfer(user, gameTokenAmount);
+        emit RewardDistributed(user, gameTokenAmount);
     }
 
-    function buyTokensWithOtherTokens(uint256 tokenAmount, uint256 paymentTokenAmount, address paymentTokenAddress) external payable {
-        require(tokenAmount > 0, "Purchase amount must be greater than zero");
-        require(paymentTokenAmount > 0, "Payment amount must be greater than zero");
-        require(tokenContract.balanceOf(address(this)) >= tokenAmount, "Insufficient reward tokens");
-        IERC20 otherToken = IERC20(paymentTokenAddress);
-        otherToken.transferFrom(msg.sender, address(this), paymentTokenAmount);
-        tokenContract.transfer(msg.sender, tokenAmount);
-        emit TokensPurchased(msg.sender, tokenAmount, paymentTokenAmount);
+    function buyItemsWithGameTokens(uint256 gameTokenAmount)
+        external
+        validAmount(gameTokenAmount)
+    {
+        require(tokenContract.balanceOf(msg.sender) >= gameTokenAmount, "Insufficient payment tokens");
+        tokenContract.transferFrom(msg.sender, address(this), gameTokenAmount);
+        emit ItemsPurchased(msg.sender, gameTokenAmount);
+    }
+
+    function buyTokensWithNativeCurrency(uint256 gameTokenAmount)
+        external
+        payable
+        validAmount(msg.value)
+        validAmount(gameTokenAmount)
+    {
+        require(tokenContract.balanceOf(address(this)) >= gameTokenAmount, "Insufficient reward tokens");
+        tokenContract.transfer(msg.sender, gameTokenAmount);
+        emit TokensPurchased(msg.sender, gameTokenAmount, msg.value);
+    }
+
+    function buyTokensWithOtherTokens(uint256 gameTokenAmount, uint256 paymentTokenAmount, address paymentTokenAddress)
+        external
+        payable
+        validAmount(gameTokenAmount)
+        validAmount(paymentTokenAmount)
+    {
+        require(tokenContract.balanceOf(address(this)) >= gameTokenAmount, "Insufficient reward tokens");
+        IERC20 otherTokenContract = IERC20(paymentTokenAddress);
+        otherTokenContract.transferFrom(msg.sender, address(this), paymentTokenAmount);
+        tokenContract.transfer(msg.sender, gameTokenAmount);
+        emit TokensPurchased(msg.sender, gameTokenAmount, paymentTokenAmount);
     }
 
 }

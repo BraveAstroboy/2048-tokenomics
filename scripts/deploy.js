@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+const { ethers, artifacts } = require("hardhat");
 
 async function deployWithRetry(contractName, args = [], maxAttempts = 3, delayMs = 5000) {
     let lastError;
@@ -54,23 +54,24 @@ async function verifyContract(address, args = []) {
 
 async function main() {
     try {
+        const [deployer] = await ethers.getSigners();
+        console.log(deployer.address);
         console.log("Starting deployment...");
 
         //Deploy MockERC20 first (if needed for testing on mainnet)
         const mockToken = await deployWithRetry("MockERC20", ["Mock Token", "MTK"]);
         const mockTokenAddress = await mockToken.getAddress();
-        console.log("MockERC20 deployed to:", mockTokenAddress);
 
         //Deploy TokenReward with retry mechanism
         const tokenReward = await deployWithRetry("TokenReward", [mockTokenAddress]);
         const tokenRewardAddress = await tokenReward.getAddress();
 
         //Update frontend contract addresses
-        updateContractAddress("../../2048-center-backend/src/consts/contracts/token.contract.json", mockTokenAddress );
-        updateContractAddress("../../2048-center-backend/src/consts/contracts/reward.contract.json", tokenRewardAddress);
+        updateContractAddress("../2048-center-backend/src/consts/contracts/token.contract.json", "MockERC20", mockTokenAddress, "TOKEN", "./config/token.address.js");
+        updateContractAddress("../2048-center-backend/src/consts/contracts/reward.contract.json", "TokenReward", tokenRewardAddress, "REWARD", "./config/reward.address.js");
 
-        //Verify contracts on Holeskyscan
-        if (process.env.HOLESKYSCAN_API_KEY) {
+        //Verify contracts on fusescan
+        if (process.env.FUSESCAN_API_KEY) {
             //Wait for a few block confirmations before verification
             console.log("Waiting for block confirmations...");
             await ethers.provider.waitForTransaction(tokenReward.deployTransaction.hash, 5);
@@ -84,11 +85,16 @@ async function main() {
     }
 }
 
-function updateContractAddress(path, address) {
+function updateContractAddress(path, contractName, contractAddress, name, configPath) {
     const fs = require("fs");
-    const contract = require("../" + path);
-    contract.address = address;
-    fs.writeFileSync(path, JSON.stringify(contract, null, 2));
+    const contractArtifact = artifacts.readArtifactSync(contractName);
+    const contractData = {
+        address: contractAddress,
+        abi: contractArtifact.abi
+    }
+    fs.writeFileSync(path, JSON.stringify(contractData, null, 2));
+    const configData = `const ${name}_CONTRACT_ADDRESS = "${contractAddress}";\nmodule.exports = ${name}_CONTRACT_ADDRESS;`
+    fs.writeFileSync(configPath, configData, "utf-8");
 }
 
 main().catch(error => {

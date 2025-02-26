@@ -2,9 +2,9 @@ require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
 //Load environment variables
-const HOLESKY_RPC_URL = process.env.HOLESKY_RPC_URL;
+const FUSE_RPC_URL = process.env.FUSE_RPC_URL;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const HOLESKYSCAN_API_KEY = process.env.HOLESKYSCAN_API_KEY;
+const FUSESCAN_API_KEY = process.env.FUSESCAN_API_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -18,12 +18,12 @@ module.exports = {
     }
   },
   networks: {
-    holesky: {
-      url: HOLESKY_RPC_URL,
+    fuse: {
+      url: FUSE_RPC_URL,
       accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
-      chainId: 17000,
-      gasPrice: "auto",
-      // Recommended settings for holesky testnet
+      chainId: 122,
+      gasPrice: 'auto',
+      // Recommended settings for fuse testnet
       timeout: 120000, // 2 minutes
       confirmations: 2, // Wait for 2 confirmations
     },
@@ -36,13 +36,13 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      holesky: HOLESKYSCAN_API_KEY
+      fuse: FUSESCAN_API_KEY
     }
   },
   gasReporter: {
     enabled: true,
     currency: "USD",
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    gasPriceApi: "https://api.holeskyscan.com/api?module=proxy&action=eth_gasPrice",
+    gasPriceApi: "https://owlracle.info/fuse"
   }
 };
