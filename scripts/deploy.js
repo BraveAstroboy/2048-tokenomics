@@ -67,8 +67,8 @@ async function main() {
         const tokenRewardAddress = await tokenReward.getAddress();
 
         //Update frontend contract addresses
-        updateContractAddress("../2048-center-backend/src/consts/contracts/token.contract.json", "MockERC20", mockTokenAddress, "TOKEN", "./config/token.address.js");
-        updateContractAddress("../2048-center-backend/src/consts/contracts/reward.contract.json", "TokenReward", tokenRewardAddress, "REWARD", "./config/reward.address.js");
+        updateContractAddress("../2048-center-backend/src/consts/contracts/token.contract.json", "../2048-frontend/src/contracts/token.contract.json", "MockERC20", mockTokenAddress, "TOKEN", "./config/token.address.js");
+        updateContractAddress("../2048-center-backend/src/consts/contracts/reward.contract.json", "../2048-frontend/src/contracts/reward.contract.json", "TokenReward", tokenRewardAddress, "REWARD", "./config/reward.address.js");
 
         //Verify contracts on fusescan
         if (process.env.FUSESCAN_API_KEY) {
@@ -85,14 +85,15 @@ async function main() {
     }
 }
 
-function updateContractAddress(path, contractName, contractAddress, name, configPath) {
+function updateContractAddress(backendPath, frontendPath, contractName, contractAddress, name, configPath) {
     const fs = require("fs");
     const contractArtifact = artifacts.readArtifactSync(contractName);
     const contractData = {
         address: contractAddress,
         abi: contractArtifact.abi
     }
-    fs.writeFileSync(path, JSON.stringify(contractData, null, 2));
+    fs.writeFileSync(backendPath, JSON.stringify(contractData, null, 2));
+    fs.writeFileSync(frontendPath, JSON.stringify(contractData, null, 2));
     const configData = `const ${name}_CONTRACT_ADDRESS = "${contractAddress}";\nmodule.exports = ${name}_CONTRACT_ADDRESS;`
     fs.writeFileSync(configPath, configData, "utf-8");
 }

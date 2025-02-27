@@ -229,8 +229,8 @@
       ]
     },
     "F:\\MyProjects\\2048\\game-tokenomics\\contracts\\TokenReward.sol": {
-      "lastModificationDate": 1740531258454,
-      "contentHash": "1c884d9252f1a8735ca62a4c3f3058c5",
+      "lastModificationDate": 1740594320945,
+      "contentHash": "11f60283953e4b273dc79d90d284f784",
       "sourceName": "contracts/TokenReward.sol",
       "solcConfig": {
         "version": "0.8.28",
