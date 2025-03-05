@@ -59,15 +59,15 @@ async function main() {
         console.log("Starting deployment...");
 
         //Deploy MockERC20 first (if needed for testing on mainnet)
-        const mockToken = await deployWithRetry("MockERC20", ["Mock Token", "MTK"]);
-        const mockTokenAddress = await mockToken.getAddress();
+        // const mockToken = await deployWithRetry("MockERC20", ["Mock Token", "MTK"]);
+        // const mockTokenAddress = await mockToken.getAddress();
 
         //Deploy TokenReward with retry mechanism
-        const tokenReward = await deployWithRetry("TokenReward", [mockTokenAddress]);
+        const tokenReward = await deployWithRetry("TokenReward", [process.env.TOKEN_CONTRACT_ADDRESS]);
         const tokenRewardAddress = await tokenReward.getAddress();
 
         //Update frontend contract addresses
-        updateContractAddress("../2048-center-backend/src/consts/contracts/token.contract.json", "../2048-frontend/src/contracts/token.contract.json", "MockERC20", mockTokenAddress, "TOKEN", "./config/token.address.js");
+        //updateContractAddress("../2048-center-backend/src/consts/contracts/token.contract.json", "../2048-frontend/src/contracts/token.contract.json", "MockERC20", mockTokenAddress, "TOKEN", "./config/token.address.js");
         updateContractAddress("../2048-center-backend/src/consts/contracts/reward.contract.json", "../2048-frontend/src/contracts/reward.contract.json", "TokenReward", tokenRewardAddress, "REWARD", "./config/reward.address.js");
 
         //Verify contracts on fusescan
@@ -76,8 +76,8 @@ async function main() {
             console.log("Waiting for block confirmations...");
             await ethers.provider.waitForTransaction(tokenReward.deployTransaction.hash, 5);
 
-            await verifyContract(mockTokenAddress, ["Mock Token", "MTK"]);
-            await verifyContract(tokenRewardAddress, [mockTokenAddress]);
+            //await verifyContract(mockTokenAddress, ["Mock Token", "MTK"]);
+            await verifyContract(tokenRewardAddress, [process.env.TOKEN_CONTRACT_ADDRESS]);
         }
     } catch (error) {
         console.error("Deployment failed:", error);
